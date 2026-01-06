@@ -4,9 +4,18 @@ namespace ExaminationSystem.Filters
 {
     public class GlobalErrorHandlerMiddleware : IMiddleware
     {
-        Task IMiddleware.InvokeAsync(HttpContext context, RequestDelegate next)
+        async Task IMiddleware.InvokeAsync(HttpContext context, RequestDelegate next)
         {
-            throw new NotImplementedException();
+            try
+            {
+
+                await next(context);
+
+            }
+            catch (Exception ex) {
+
+
+            }
         }
     }
 }

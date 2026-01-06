@@ -7,6 +7,7 @@ using ExaminationSystem.Models.Enums;
 using ExaminationSystem.Services;
 using ExaminationSystem.ViewModels.Exam;
 using ExaminationSystem.ViewModels.Other;
+using ExaminationSystem.ViewModels.ResponseViewModel;
 using ExaminationSystem.ViewModels.Student;
 using Microsoft.AspNetCore.Mvc;
 namespace ExaminationSystem.Controllers
@@ -26,9 +27,20 @@ namespace ExaminationSystem.Controllers
 
 
         [HttpGet]
-        public IEnumerable<GetAllStudentsViewModel> GetAll()
+        public ResponseViewModel<IEnumerable<GetAllStudentsViewModel>> GetAll()
         {
-            return _mapper.Map<IEnumerable<GetAllStudentsViewModel>>(_studentService.GetAll());
+
+            var res=  _mapper.Map<IEnumerable<GetAllStudentsViewModel>>( _studentService.GetAll());
+            /*
+            return new ResponseViewModel<IEnumerable<GetAllStudentsViewModel>>() 
+            { 
+                Data = res ,
+                IsError=ErrorCode.NoError,
+                IsSuccess=true,
+                Massage=""
+            };
+            */
+            return new SuccessResponseViewModel<IEnumerable<GetAllStudentsViewModel>>(res)  ;
             /*
             return _studentService.GetAll()
                 .Select(s => new GetAllStudentsViewModel
@@ -38,12 +50,21 @@ namespace ExaminationSystem.Controllers
                     Email = s.Email
                 });
             */
+
         }
 
         [HttpGet]
-        public async Task<GetStudentByIdViewModel> GetByID(int id)
+        public async Task<ResponseViewModel<GetStudentByIdViewModel>> GetByID(int id)
         {
-            return _mapper.Map<GetStudentByIdViewModel>(_studentService.GetByID(id));
+            var res = _mapper.Map<GetStudentByIdViewModel>(await _studentService.GetByID(id));
+            return new SuccessResponseViewModel<GetStudentByIdViewModel>(res);
+            /*return new ResponseViewModel<GetStudentByIdViewModel>()
+            {
+                Data = res,
+                IsError = ErrorCode.NoError,
+                IsSuccess = true,
+                Massage = ""
+            };*/
         }
 
         
@@ -101,11 +122,30 @@ namespace ExaminationSystem.Controllers
         }
 
         [HttpPut]
-        public async Task<bool> StartExam(StudentAnswerViewModel studentAnswerViewModel) 
+        public async Task<bool> StartExam(StudentExamViewModel studentExamViewModel) 
         {
-            object start = await _studentService.StartExam(_mapper.Map<StudentAnswerDTO>(studentAnswerViewModel));
+            await _studentService.StartExam(_mapper.Map<StudentExamDTO>(studentExamViewModel));
             return true;
         }
+
+        [HttpPut]
+        public async Task<bool> SubmitAnswer(StudentAnswerViewModel studentAnswerViewModel) 
+        {
+            await _studentService.SubmitAnswer(_mapper.Map<StudentAnswerDTO>(studentAnswerViewModel));
+            return true;    
+        }
+
+        [HttpPut]
+        public async Task<bool> SubmitAnswers(List<StudentAnswerViewModel> studentAnswerViewModels)
+        {
+            await _studentService.SubmitAnswers(_mapper.Map<List<StudentAnswerDTO>>(studentAnswerViewModels))  ;
+            return true;
+        }
+
+
+
+
+
 
     }
 }

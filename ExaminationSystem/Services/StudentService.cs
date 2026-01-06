@@ -137,7 +137,7 @@ namespace ExaminationSystem.Services
 
             await _studentRepository.HardDelete(studentId);
         }
-        //Assign student in course
+
         public async Task<bool> EnrollInCourse(DTOs.Other.StudentCourseDTO studentCourseDTO)
         {
             if (!_studentRepository.IsExist(studentCourseDTO.StudentId) || !_courseRepository.IsExist(studentCourseDTO.CourseId))
@@ -154,23 +154,10 @@ namespace ExaminationSystem.Services
 
             return true;
         }
-        public async Task SubmitAnswers( List<StudentAnswerDTO> answers)
-        {
-            foreach (var answer in answers)
-            {
-                await _studentAnswerRepository.AddOrUpdate(new StudentAnswer
-                {
-                    StudentId = answer.StudentId,
-                    ExamId = answer.ExamId,
-                    QuestionId = answer.QuestionId,
-                    SelectedChoiceId = answer.SelectedChoiceId
-                });
-            }
-        }
 
-        public async Task StartExam(int studentId, int examId)
+        public async Task StartExam(StudentExamDTO studentExamDTO)
         {
-            var studentExam = await _studentExamRepository.GetWithTracking(studentId, examId);
+            var studentExam = await _studentExamRepository.GetWithTracking(studentExamDTO.StudentId, studentExamDTO.ExamId);
 
             if (studentExam == null)
                 throw new Exception("Student not assigned to this exam");
@@ -178,7 +165,7 @@ namespace ExaminationSystem.Services
             if (studentExam.StartedTime != null)
                 throw new Exception("Exam already started");
 
-            if (studentExam.Exam.Type == ExamType.Final && _studentExamRepository.HasFinalExam(studentId))
+            if (studentExam.Exam.Type == ExamType.Final && _studentExamRepository.HasFinalExam(studentExamDTO.StudentId))
                 throw new Exception("Student already took final exam");
 
             studentExam.StartedTime = DateTime.UtcNow;
@@ -192,7 +179,7 @@ namespace ExaminationSystem.Services
             await _studentExamRepository.IsExamTimeExpired(studentExamDTO.StudentId, studentExamDTO.ExamId);
         }
 
-        public async Task SubmitAnswer(StudentAnswerDTO dto)
+        public async Task<bool> SubmitAnswer(StudentAnswerDTO dto)
         {
             var studentExam = await _studentExamRepository.GetWithTracking(dto.StudentId, dto.ExamId);
 
@@ -224,8 +211,16 @@ namespace ExaminationSystem.Services
                 SelectedChoiceId = dto.SelectedChoiceId
             });
             */
+            return true;
         }
 
+        public async Task SubmitAnswers( List<StudentAnswerDTO> answers)
+        {
+            foreach (var answer in answers)
+            {
+                await SubmitAnswer(answer);
+            }
+        }
 
         public async Task<List<Course>> GetCoursesForStudent(int studentId)
         {
@@ -240,6 +235,7 @@ namespace ExaminationSystem.Services
 
             return courses;
         }
+
         public async Task SoftDeleteStudentFromCourse(StudentCourseDTO studentCourseDTO)
         {
             if (!_studentCourseRepository.IsAssigned(studentCourseDTO.StudentId,studentCourseDTO.CourseId))
@@ -247,6 +243,7 @@ namespace ExaminationSystem.Services
 
             await _studentCourseRepository.SoftDelete(_mapper.Map<StudentCourse>(studentCourseDTO));
         }
+
         public async Task HardDeleteStudentFromCourse(StudentCourseDTO studentCourseDTO)
         {
             if (!_studentCourseRepository.IsAssigned(studentCourseDTO.StudentId,studentCourseDTO.CourseId))
@@ -254,6 +251,7 @@ namespace ExaminationSystem.Services
 
             await _studentCourseRepository.HardDelete(_mapper.Map<StudentCourse>(studentCourseDTO));
         }
+
         public IEnumerable<GetExamsForStudentDTO> GetExamsForStudent(int studentId)
         {
             if (!_studentRepository.IsExist(studentId))
