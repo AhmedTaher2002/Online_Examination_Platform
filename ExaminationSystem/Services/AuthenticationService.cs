@@ -9,19 +9,16 @@ namespace ExaminationSystem.Services
 {
     public class AuthenticationService
     {
-        private readonly StudentRepository _studentRepository;
-        private readonly InstructorRepository _instructorRepository;
-
+        private readonly UserRepository _userRepository ;
         public AuthenticationService()
         {
-            _studentRepository = new StudentRepository();
-            _instructorRepository = new InstructorRepository();
+            _userRepository= new UserRepository();
         }
 
         // Login (Email OR Username)
         public async Task<ResponseViewModel<string>> Login(LoginDTO dto)
         {
-            var user = await _studentRepository
+            var user = await _userRepository
                 .Get(s =>
                     (s.Email == dto.EmailOrUsername || s.Username == dto.EmailOrUsername) &&
                     !s.IsDeleted
