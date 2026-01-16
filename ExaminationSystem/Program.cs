@@ -2,6 +2,7 @@ using ExaminationSystem.Data;
 using System.Reflection.Metadata;
 using System.Security;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
 
 namespace ExaminationSystem
 {
@@ -46,9 +47,16 @@ namespace ExaminationSystem
 
             builder.Services.AddAuthorization();
 
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                ?? @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=ExaminationDB;Integrated Security=True;TrustServerCertificate=True";
 
+            builder.Services.AddDbContext<ExaminationSystem.Data.Context>(options =>
+                options.UseSqlServer(connectionString)
+                       .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                       .EnableSensitiveDataLogging(true)
+            );
 
-            var app = builder.Build();
+            var app = builder.Build();      
 
             app.UseAuthentication();
             app.UseAuthorization(); 

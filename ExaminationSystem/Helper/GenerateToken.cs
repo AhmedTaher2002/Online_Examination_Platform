@@ -8,7 +8,7 @@ namespace ExaminationSystem.Helper
 {
     public class GenerateToken
     {
-        public static string Generate(string UserId,string Name)
+        public static string Generate(string UserId,string Name,string Role)
         {
             var key = Encoding.ASCII.GetBytes(Data.Constants.SecretKey);
 
@@ -18,7 +18,8 @@ namespace ExaminationSystem.Helper
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.NameIdentifier, UserId),
-                    new Claim(ClaimTypes.Name, Name)
+                    new Claim(ClaimTypes.Name, Name),
+                    new Claim(ClaimTypes.Role, Role)
                 }),
                 Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),

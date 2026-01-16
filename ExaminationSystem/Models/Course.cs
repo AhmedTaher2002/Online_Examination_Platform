@@ -16,8 +16,8 @@ namespace ExaminationSystem.Models
         [ForeignKey("Instructor")]
         public int InstructorId { get; set; }
         public Instructor Instructor { get; set; }=null!;
-        public ICollection<StudentCourse> StudentCourses { get; set; } = new List<StudentCourse>();
-        public ICollection<Exam> Exams { get; set; } = new List<Exam>();
+        public ICollection<StudentCourse> StudentCourses { get; set; } = new HashSet<StudentCourse>();
+        public ICollection<Exam> Exams { get; set; } = new HashSet<Exam>();
         
         //[InverseProperty("preRequesit")]
         //public ICollection<PreRequesit> PreRequesitCourse { get; set; }

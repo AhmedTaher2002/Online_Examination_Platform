@@ -1,4 +1,5 @@
 ﻿using ExaminationSystem.Models;
+using ExaminationSystem.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
@@ -6,6 +7,12 @@ namespace ExaminationSystem.Data
 {
     public class Context : DbContext
     {
+        // Parameterless constructor added so code that does `new Context()` compiles.
+        // Prefer injecting `Context` via DI and removing parameterless usage in repositories.
+        public Context() { }
+
+        public Context(DbContextOptions<Context> options) : base(options) { }
+
         public DbSet<Course> Courses { get; set; }
         public DbSet<Exam> Exams { get; set; }
         public DbSet<ExamQuestion> ExamQuestions { get; set; }
@@ -15,52 +22,78 @@ namespace ExaminationSystem.Data
         public DbSet<Student> Students { get; set; }
         public DbSet<StudentAnswer> StudentAnswers { get; set; }
         public DbSet<StudentCourse> StudentCourses { get; set; }
-        public DbSet<StudentExam> StudentExam { get; set; }
+          public DbSet<StudentExam> StudentExam { get; set; }
+        public DbSet<User> User { get; set; }
+        public DbSet<RoleFeature> RoleFeature { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Data source = (localdb)\MSSQLLocalDB; initial catalog =ExaminationDB ; integrated security = true; trust server certificate = true ")
-                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                .LogTo(log => Debug.WriteLine(log), LogLevel.Information)
-                .EnableSensitiveDataLogging(true);
+            // Only configure here if options were not provided (design-time / direct new Context() scenarios).
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlServer(@"Data source = (localdb)\MSSQLLocalDB; initial catalog =ExaminationDB ; integrated security = true; trust server certificate = true ")
+                    .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                    .LogTo(log => Debug.WriteLine(log), LogLevel.Information)
+                    .EnableSensitiveDataLogging(true);
+            }
         }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Course>(entity => { 
+            modelBuilder.Entity<Course>(entity =>
+            {
                 entity.HasKey(c => c.ID);
-                entity.Property(entity=> entity.CreatedDate).HasDefaultValueSql("GETDATE()");
-                entity.Property(entity=> entity.UpdatedDate).HasDefaultValueSql("GETDATE()");
-                entity.Property(entity=> entity.IsDeleted).HasDefaultValue(false);
+                entity.Property(entity => entity.CreatedDate).HasDefaultValueSql("GETDATE()");
+                entity.Property(entity => entity.UpdatedDate).HasDefaultValueSql("GETDATE()");
+                entity.Property(entity => entity.IsDeleted).HasDefaultValue(false);
             });
-            modelBuilder.Entity<Exam>(entity => {
+            modelBuilder.Entity<Exam>(entity =>
+            {
                 entity.HasKey(c => c.ID);
                 entity.Property(entity => entity.CreatedDate).HasDefaultValueSql("GETDATE()");
                 entity.Property(entity => entity.UpdatedDate).HasDefaultValueSql("GETDATE()");
                 entity.Property(entity => entity.IsDeleted).HasDefaultValue(false);
             });
 
-            modelBuilder.Entity<Question>(entity => {
+            modelBuilder.Entity<Question>(entity =>
+            {
                 entity.HasKey(c => c.ID);
                 entity.Property(entity => entity.CreatedDate).HasDefaultValueSql("GETDATE()");
                 entity.Property(entity => entity.UpdatedDate).HasDefaultValueSql("GETDATE()");
                 entity.Property(entity => entity.IsDeleted).HasDefaultValue(false);
             });
-            modelBuilder.Entity<Choice>(entity => {
+            modelBuilder.Entity<Choice>(entity =>
+            {
                 entity.HasKey(c => c.ID);
                 entity.Property(entity => entity.CreatedDate).HasDefaultValueSql("GETDATE()");
                 entity.Property(entity => entity.UpdatedDate).HasDefaultValueSql("GETDATE()");
                 entity.Property(entity => entity.IsDeleted).HasDefaultValue(false);
+
+                // Explicitly configure relationship to Question and disable cascade delete
+                // to avoid multiple cascade paths reaching StudentAnswers.
+                entity.HasOne(c => c.Question)
+                      .WithMany(q => q.Choices) // ensure Question has ICollection<Choice> Choices
+                      .HasForeignKey(c => c.QuestionId)
+                      .OnDelete(DeleteBehavior.NoAction);
             });
-            modelBuilder.Entity<Instructor>(entity => {
-                entity.HasKey(c => c.ID);
-                entity.Property(entity => entity.CreatedDate).HasDefaultValueSql("GETDATE()");
-                entity.Property(entity => entity.UpdatedDate).HasDefaultValueSql("GETDATE()");
-                entity.Property(entity => entity.IsDeleted).HasDefaultValue(false);
+
+            modelBuilder.Entity<Instructor>(entity =>
+            {
+                entity.Property(entity => entity.Role).HasDefaultValue(GeneralRepository.Instructor);
+
             });
-            modelBuilder.Entity<Student>(entity => {
+            modelBuilder.Entity<User>(entity =>
+            {
                 entity.HasKey(c => c.ID);
                 entity.Property(entity => entity.CreatedDate).HasDefaultValueSql("GETDATE()");
                 entity.Property(entity => entity.UpdatedDate).HasDefaultValueSql("GETDATE()");
                 entity.Property(entity => entity.IsDeleted).HasDefaultValue(false);
+                entity.HasIndex(u => u.Email).IsUnique();
+                entity.HasIndex(u => u.Username).IsUnique();
+            });
+            modelBuilder.Entity<Student>(entity =>
+            {
+                entity.Property(entity => entity.Role).HasDefaultValue(GeneralRepository.Student);
             });
             modelBuilder.Entity<ExamQuestion>(entity =>
             {
@@ -73,21 +106,26 @@ namespace ExaminationSystem.Data
             });
             modelBuilder.Entity<StudentAnswer>(entity =>
             {
-                entity.HasKey(sa => new { sa.QuestionId,sa.StudentId,sa.ExamId });  
+                entity.HasKey(sa => new { sa.QuestionId, sa.StudentId, sa.ExamId });
+
                 entity.HasOne(sa => sa.StudentExam)
                       .WithMany(se => se.Answers)
                       .HasForeignKey(sa => new { sa.StudentId, sa.ExamId })
                       .OnDelete(DeleteBehavior.NoAction);
+
                 entity.HasOne(sa => sa.Question)
                       .WithMany(q => q.StudentAnswers)
                       .HasForeignKey(sa => sa.QuestionId)
                       .OnDelete(DeleteBehavior.NoAction);
+
                 entity.HasOne(sa => sa.Exam)
-                     .WithMany()
-                     .HasForeignKey(sa => sa.ExamId)
-                     .OnDelete(DeleteBehavior.NoAction);
+                      .WithMany()
+                      .HasForeignKey(sa => sa.ExamId)
+                      .OnDelete(DeleteBehavior.NoAction);
+
             });
-            modelBuilder.Entity<StudentCourse>(entity => {
+            modelBuilder.Entity<StudentCourse>(entity =>
+            {
                 entity.HasKey(sc => new { sc.StudentId, sc.CourseId });
                 entity.HasOne(sc => sc.Student)
                       .WithMany(s => s.StudentCourses)
@@ -95,7 +133,8 @@ namespace ExaminationSystem.Data
                 entity.HasOne(sc => sc.Course).WithMany(c => c.StudentCourses)
                       .HasForeignKey(sc => sc.CourseId).OnDelete(DeleteBehavior.NoAction);
             });
-            modelBuilder.Entity<StudentExam>(entity => {
+            modelBuilder.Entity<StudentExam>(entity =>
+            {
                 entity.HasKey(se => new { se.StudentId, se.ExamId });
                 entity.HasOne(se => se.Student)
                       .WithMany(s => s.StudentExams)
@@ -103,6 +142,11 @@ namespace ExaminationSystem.Data
                 entity.HasOne(se => se.Exam).WithMany(e => e.StudentExams)
                       .HasForeignKey(se => se.ExamId).OnDelete(DeleteBehavior.NoAction);
             });
+            modelBuilder.Entity<RoleFeature>(entity =>
+            {
+                entity.HasKey(rf => new { rf.Role, rf.Feature });
+            });
+            
         }
     }
 }

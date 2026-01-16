@@ -11,7 +11,7 @@ namespace ExaminationSystem.Repositories
 {
     public class StudentExamRepository 
     {
-        Context _context;
+        private readonly Context _context;
 
         public StudentExamRepository()
         {
@@ -74,7 +74,7 @@ namespace ExaminationSystem.Repositories
             if (studentExam == null)
                 return false;
 
-             _context.StudentExam.Remove(studentExam);
+            _context.StudentExam.Remove(studentExam);
             await _context.SaveChangesAsync();
             return true;
         }
@@ -101,13 +101,16 @@ namespace ExaminationSystem.Repositories
         public async Task<bool> IsExamTimeExpired(int studentId, int examId)
         {
             var studentExam = await _context.StudentExam.Include(se => se.Exam).AsNoTracking()
-                .Where(se => se.StudentId == studentId && se.ExamId == examId && se.StartedTime != null && !se.IsDeleted)
-                .Select(st => new { st.StartedTime, st.DurationMinutes }).FirstOrDefaultAsync();
+                .Where(se => se.StudentId == studentId && se.ExamId == examId && !se.IsDeleted)
+                .FirstOrDefaultAsync();
 
-            if (studentExam == null)
+            if (studentExam is null)
                 throw new Exception("Exam not started");
 
-            var endTime = studentExam.StartedTime.AddMinutes(studentExam.DurationMinutes);
+            if (studentExam.StartedTime == default)
+                throw new Exception("Exam not started");
+
+            var endTime = studentExam.StartedTime.AddMinutes(studentExam.Exam.DurationMinutes);
 
             return DateTime.UtcNow > endTime;
         }

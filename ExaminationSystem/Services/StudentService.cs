@@ -23,7 +23,6 @@ namespace ExaminationSystem.Services
         private readonly StudentAnswerRepository _studentAnswerRepository;
         private readonly ChoiceRepository _choiceRepository;
         private readonly CourseRepository _courseRepository;
-        private readonly ExamRepository _examRepository;
         private readonly IMapper _mapper;
 
         public StudentService(IMapper mapper)
@@ -35,7 +34,6 @@ namespace ExaminationSystem.Services
             _examQuestionRepository = new ExamQuestionRepository();
             _choiceRepository = new ChoiceRepository();
             _courseRepository = new CourseRepository();
-            _examRepository = new ExamRepository();
             _mapper = mapper;
         }
 
@@ -99,6 +97,9 @@ namespace ExaminationSystem.Services
                 return new FailResponseViewModel<bool>("Student Not Found", ErrorCode.InvalidStudentId);
 
             var existingStudent = await _studentRepository.GetByID(studentID).FirstOrDefaultAsync();
+
+            if (existingStudent == null)
+                return new FailResponseViewModel<bool>("Student Not Found", ErrorCode.InvalidStudentId);
 
             dto = new UpdateStudentDTO
             {
@@ -181,7 +182,7 @@ namespace ExaminationSystem.Services
 
             if (studentExam == null)
                 return new FailResponseViewModel<bool>("Student Not Assigned to Course", ErrorCode.StudentNotAssignedToCourse);
-            if (studentExam.StartedTime != null)
+            if (studentExam.StartedTime != default)
                 return new FailResponseViewModel<bool>("Exam already started", ErrorCode.StudentStartedExam);
             if (studentExam.Exam.Type == ExamType.Final && _studentExamRepository.HasFinalExam(dto.StudentId))
                 return new FailResponseViewModel<bool>("Student already took final exam", ErrorCode.StudentAreadyTakeFinalExam);
@@ -264,7 +265,7 @@ namespace ExaminationSystem.Services
 
             if (studentExam == null)
                 return new FailResponseViewModel<bool>("Student not assigned to exam", ErrorCode.StudentNotAssignedToCourse);
-            if (studentExam.StartedTime == null)
+            if (studentExam.StartedTime == default)
                 return new FailResponseViewModel<bool>("Exam not started", ErrorCode.ExamNotStarted);
             if (studentExam.IsSubmitted)
                 return new FailResponseViewModel<bool>("Exam already submitted", ErrorCode.ExamAlreadySubmitted);

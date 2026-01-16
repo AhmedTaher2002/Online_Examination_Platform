@@ -16,9 +16,9 @@ namespace ExaminationSystem.Models
         public int InstructorId { get; set; }
         public Instructor Instructor { get; set; } = null!;
 
-        public ICollection<Choice> Choices { get; set; } = new List<Choice>();
-        public ICollection<ExamQuestion> ExamQuestions { get; set; } = new List<ExamQuestion>();
-        public ICollection<StudentAnswer> StudentAnswers { get; set; } = new List<StudentAnswer>();
+        public ICollection<Choice> Choices { get; set; } = new HashSet<Choice>();
+        public ICollection<ExamQuestion> ExamQuestions { get; set; } = new HashSet<ExamQuestion>();
+        public ICollection<StudentAnswer> StudentAnswers { get; set; } = new HashSet<StudentAnswer>();
         
     }
 } 

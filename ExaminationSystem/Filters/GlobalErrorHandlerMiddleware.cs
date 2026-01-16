@@ -14,7 +14,7 @@ namespace ExaminationSystem.Filters
             }
             catch (Exception ex) {
 
-
+                throw new Exception("An error occurred while processing your request.", ex);
             }
         }
     }

@@ -1,31 +1,28 @@
-﻿
-using ExaminationSystem.Data;
-using System.Linq.Expressions;
+﻿using ExaminationSystem.Data;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace ExaminationSystem.Filters
 {
     public class TransactionMiddleware : IMiddleware
     {
         private readonly Context _context;
-        public TransactionMiddleware(Context context)
-        {
-            _context = context;
-        }
+        public TransactionMiddleware(Context context) => _context = context;
 
-        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+        public async Task InvokeAsync(HttpContext httpContext, RequestDelegate next)
         {
-            var transaction=_context.Database.BeginTransaction();
+            // BeginTransactionAsync preferred and ensure disposal
+            await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                await next(context);
+                await next(httpContext);
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
-
             }
-            catch (Exception ex) {
+            catch
+            {
                 await transaction.RollbackAsync();
+                throw;
             }
-            throw new NotImplementedException();
         }
-    }
+    }   
 }

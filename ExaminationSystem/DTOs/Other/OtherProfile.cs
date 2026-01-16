@@ -9,7 +9,6 @@ namespace ExaminationSystem.DTOs.Other
         public OtherProfile() { 
             CreateMap<StudentCourseViewModel,StudentCourseDTO>();
             CreateMap<ExamQuestionViewModel,ExamQuestionDTO>();
-            CreateMap<ExamResultViewModel,ExamResultDTO>();
             CreateMap<StudentAnswerViewModel,StudentAnswerDTO>();
             CreateMap<GetExamsForStudentDTO, GetExamsForStudentViewModel>();
 

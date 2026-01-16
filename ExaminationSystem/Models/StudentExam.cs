@@ -15,7 +15,7 @@ namespace ExaminationSystem.Models
         public DateTime SubmissionTime { get; set; }
 
         public bool IsSubmitted { get; set; }
-        public ICollection<StudentAnswer> Answers { get; set; } = new List<StudentAnswer>();
+        public ICollection<StudentAnswer> Answers { get; set; } = new HashSet<StudentAnswer>();
         public DateTime StartedTime { get; internal set; }
 
     }

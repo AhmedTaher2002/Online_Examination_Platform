@@ -1,33 +1,31 @@
-﻿using ExaminationSystem.Data;
+﻿using AutoMapper;
+using ExaminationSystem.DTOs.Auth;
+using ExaminationSystem.Services;
+using ExaminationSystem.ViewModels.Response;
 using ExaminationSystem.ViewModels.User;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace ExaminationSystem.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class LoginController : ControllerBase
+    [Route("api/auth")]
+    public class AuthenticationController : ControllerBase
     {
-        private readonly Context _context;
-        public LoginController()
+        private readonly AuthenticationService _authenticationService;
+        private readonly Mapper _mapper;
+
+        public AuthenticationController(Mapper mapper)
         {
-            _context = new Context();
+            _authenticationService = new AuthenticationService();
+            _mapper = mapper;
         }
-        [HttpPost]
-        public IActionResult Login([FromBody] LoginRequestViewModel request)
+
+        // Student login using Email or Username
+        [HttpPost("login")]
+        public async Task<ResponseViewModel<string>> StudentLogin( LoginViewModel vm)
         {
-            _context.
-
-            // Placeholder logic for user authentication
-            if (_context.Students.AnyAsync(a=>a.Username== request.Username) && request.Password == "password")
-            {
-                return Ok(new { Token = "fake-jwt-token" });
-            }
-
-
-            return Unauthorized();
+            return await _authenticationService.Login(_mapper.Map<LoginDTO>(vm));
         }
+
     }
 }
