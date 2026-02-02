@@ -4,12 +4,15 @@
     {
         NoError = 0,
 
+        RoleAlreadyHasFeature=1,
+
         // Course related
         InvalidCourseId = 101,
         CourseNotFound = 103,
         CourseAreadyExists = 104,
         CourseNotCreated = 106,
         InvalidCourseFilter= 107,
+        CourseNotHasStudents=108,
 
         // Instructor related
         InvalidInstrutorId = 201,
@@ -63,6 +66,11 @@
         InvalidChoice = 711,
         ExamNotStarted = 712,
         ExamAlreadySubmitted = 713,
-        ExamTimeExpired = 714
+        ExamTimeExpired = 714,
+        
+        
+        InvalidEmail=715,
+        InvalidPassword=716,
+
     }
 }

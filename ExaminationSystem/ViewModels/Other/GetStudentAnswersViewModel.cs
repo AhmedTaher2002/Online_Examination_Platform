@@ -4,10 +4,10 @@ using ExaminationSystem.Models.Enums;
 namespace ExaminationSystem.ViewModels.Other
 {
     public class GetStudentAnswersViewModel    {
-        public string Text { get; set; }
+        public string Text { get; set; }=null!;
         public QuestionLevel Level { get; set; }
         public int SelectedChoiceId { get; set; }
-        public IEnumerable<GetChoiceByIdDTO> GetChoiceByIdDTO { get; set; }
+        public IEnumerable<GetChoiceByIdDTO> GetChoiceByIdDTO { get; set; }=new HashSet<GetChoiceByIdDTO>();
 
     }
 }

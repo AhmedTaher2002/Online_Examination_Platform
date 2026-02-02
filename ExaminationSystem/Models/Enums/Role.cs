@@ -1,6 +1,6 @@
 ﻿namespace ExaminationSystem.Models.Enums
 {
-    public enum GeneralRepository
+    public enum Role
     {
         Admin,
         Instructor,

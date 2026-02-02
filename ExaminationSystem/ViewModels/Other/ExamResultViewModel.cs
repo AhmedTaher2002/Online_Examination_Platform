@@ -1,9 +1,0 @@
-﻿namespace ExaminationSystem.ViewModels.Other
-{
-    public class ExamEvaluationResultViewModel
-    {
-        public decimal Score { get; set; }
-        public int StudentId { get; set; }
-        public string FullName { get; set; } = null!;
-    }
-}

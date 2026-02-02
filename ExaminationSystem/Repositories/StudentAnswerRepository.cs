@@ -58,7 +58,7 @@ namespace ExaminationSystem.Repositories
 
         public int CountCorrectAnswers(int studentId,int examId)
         {
-            return _context.StudentAnswers.Count(sa => sa.StudentId == studentId&&sa.ExamId==examId && sa.SelectedChoice.IsCorrect);
+            return _context.StudentAnswers.Count(sa => sa.StudentId == studentId && sa.ExamId==examId && sa.SelectedChoice.IsCorrect);
         }
         
     }

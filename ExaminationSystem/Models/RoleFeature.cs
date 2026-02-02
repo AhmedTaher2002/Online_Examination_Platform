@@ -2,9 +2,9 @@
 
 namespace ExaminationSystem.Models
 {
-    public class RoleFeature
+    public class RoleFeature:BaseModel
     {
-        public GeneralRepository Role { get; set; }
+        public Role Role { get; set; }
         public Feature Feature { get; set; }
     }
 }

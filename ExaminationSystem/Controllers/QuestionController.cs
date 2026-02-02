@@ -14,9 +14,9 @@ namespace ExaminationSystem.Controllers
         private readonly QuestionService _questionService;
         private readonly IMapper _mapper;
 
-        public QuestionController(QuestionService questionService, IMapper mapper)
+        public QuestionController(IMapper mapper)
         {
-            _questionService = questionService;
+            _questionService = new QuestionService(mapper);
             _mapper = mapper;
         }
 
@@ -42,16 +42,16 @@ namespace ExaminationSystem.Controllers
         }
 
         [HttpPost]
-        public async Task<ResponseViewModel<bool>> Create([FromBody] CreateQuestionDTO dto)
+        public async Task<ResponseViewModel<bool>> Create([FromBody] CreateQuestionViewModel vm)
         {
-            var result = await _questionService.Create(dto);
+            var result = await _questionService.Create(_mapper.Map<CreateQuestionDTO>(vm));
             return _mapper.Map<ResponseViewModel<bool>>(result);
         }
 
         [HttpPut("{id}")]
-        public async Task<ResponseViewModel<bool>> Update(int id, [FromBody] UpdateQuestionDTO dto)
+        public async Task<ResponseViewModel<bool>> Update(int id, [FromBody] UpdateQuestionViewModel vm)
         {
-            var result = await _questionService.Update(id, dto);
+            var result = await _questionService.Update(id, _mapper.Map<UpdateQuestionDTO>(vm));
             return _mapper.Map<ResponseViewModel<bool>>(result);
         }
 

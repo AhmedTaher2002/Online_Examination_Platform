@@ -80,7 +80,7 @@ namespace ExaminationSystem.Repositories
             }
             else
             {
-                entityEntry = _context.ChangeTracker.Entries<T>().FirstOrDefault(x => x.Entity.ID == entity.ID);
+                entityEntry =  _context.ChangeTracker.Entries<T>().FirstOrDefault(x => x.Entity.ID == entity.ID);
             }
 
             foreach( var prop in entityEntry.Properties)

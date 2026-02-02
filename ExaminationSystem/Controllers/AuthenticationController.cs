@@ -12,9 +12,9 @@ namespace ExaminationSystem.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly AuthenticationService _authenticationService;
-        private readonly Mapper _mapper;
+        private readonly IMapper _mapper;
 
-        public AuthenticationController(Mapper mapper)
+        public AuthenticationController(IMapper mapper)
         {
             _authenticationService = new AuthenticationService();
             _mapper = mapper;

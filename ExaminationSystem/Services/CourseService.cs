@@ -2,6 +2,7 @@
 using AutoMapper.QueryableExtensions;
 using ExaminationSystem.DTOs.Course;
 using ExaminationSystem.DTOs.Exam;
+using ExaminationSystem.DTOs.Other;
 using ExaminationSystem.DTOs.Student;
 using ExaminationSystem.Models;
 using ExaminationSystem.Models.Enums;
@@ -10,6 +11,7 @@ using ExaminationSystem.ViewModels.Response;
 using Microsoft.EntityFrameworkCore;
 using PredicateExtensions;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace ExaminationSystem.Services
 {
@@ -141,10 +143,14 @@ namespace ExaminationSystem.Services
         }
 
         // Get all students enrolled in a course
-        public IEnumerable<GetAllStudentsDTO> GetStudentsInCourse(int courseId)
+        public async Task<ResponseViewModel<IEnumerable<StudentCourseDTO>>> GetStudentsInCourse(int courseId)
         {
             var students = _studentCourseRepository.GetStudentsByCourse(courseId);
-            return _mapper.Map<List<GetAllStudentsDTO>>(students);
+            var result =await students.ProjectTo<StudentCourseDTO>(_mapper.ConfigurationProvider).ToListAsync();
+            return (result != null)
+                ? new SuccessResponseViewModel<IEnumerable<StudentCourseDTO>>(result)
+                : new FailResponseViewModel<IEnumerable<StudentCourseDTO>>("Course Not Have Student", ErrorCode.CourseNotHasStudents);
+
         }
 
         // Assign instructor to course

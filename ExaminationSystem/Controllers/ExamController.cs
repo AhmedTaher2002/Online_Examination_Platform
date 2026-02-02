@@ -3,6 +3,7 @@ using ExaminationSystem.DTOs.Exam;
 using ExaminationSystem.DTOs.Other;
 using ExaminationSystem.Services;
 using ExaminationSystem.ViewModels.Exam;
+using ExaminationSystem.ViewModels.Other;
 using ExaminationSystem.ViewModels.Question;
 using ExaminationSystem.ViewModels.Response;
 using Microsoft.AspNetCore.Mvc;
@@ -16,9 +17,9 @@ namespace ExaminationSystem.Controllers
         private readonly ExamService _examService;
         private readonly IMapper _mapper;
 
-        public ExamController(ExamService examService, IMapper mapper)
+        public ExamController( IMapper mapper)
         {
-            _examService = examService;
+            _examService = new ExamService(mapper);
             _mapper = mapper;
         }
 
@@ -44,16 +45,16 @@ namespace ExaminationSystem.Controllers
         }
 
         [HttpPost]
-        public async Task<ResponseViewModel<bool>> Create([FromBody] CreateExamDTO dto)
+        public async Task<ResponseViewModel<bool>> Create([FromBody] CreateExamViewModel vm)
         {
-            var result = await _examService.Create(dto);
+            var result = await _examService.Create(_mapper.Map<CreateExamDTO>(vm));
             return _mapper.Map<ResponseViewModel<bool>>(result);
         }
 
         [HttpPut("{id}")]
-        public async Task<ResponseViewModel<bool>> Update(int id, [FromBody] UpdateExamDTO dto)
+        public async Task<ResponseViewModel<bool>> Update(int id, [FromBody] UpdateExamViewModel vm)
         {
-            var result = await _examService.Update(id, dto);
+            var result = await _examService.Update(id, _mapper.Map<UpdateExamDTO>(vm));
             return _mapper.Map<ResponseViewModel<bool>>(result);
         }
 
@@ -72,9 +73,9 @@ namespace ExaminationSystem.Controllers
         }
 
         [HttpPost("assign-question")]
-        public async Task<ResponseViewModel<bool>> AssignQuestion([FromBody] ExamQuestionDTO dto)
+        public async Task<ResponseViewModel<bool>> AssignQuestion([FromBody] ExamQuestionViewModel vm)
         {
-            var result = await _examService.AssignQuestion(dto);
+            var result = await _examService.AssignQuestion(_mapper.Map<ExamQuestionDTO>(vm));
             return _mapper.Map<ResponseViewModel<bool>>(result);
         }
 

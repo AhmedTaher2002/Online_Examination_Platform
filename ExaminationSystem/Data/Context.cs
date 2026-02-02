@@ -22,8 +22,7 @@ namespace ExaminationSystem.Data
         public DbSet<Student> Students { get; set; }
         public DbSet<StudentAnswer> StudentAnswers { get; set; }
         public DbSet<StudentCourse> StudentCourses { get; set; }
-          public DbSet<StudentExam> StudentExam { get; set; }
-        public DbSet<User> User { get; set; }
+        public DbSet<StudentExam> StudentExam { get; set; }
         public DbSet<RoleFeature> RoleFeature { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -31,7 +30,7 @@ namespace ExaminationSystem.Data
             // Only configure here if options were not provided (design-time / direct new Context() scenarios).
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(@"Data source = (localdb)\MSSQLLocalDB; initial catalog =ExaminationDB ; integrated security = true; trust server certificate = true ")
+                optionsBuilder.UseSqlServer(@"Data Source = (localdb)\MSSQLLocalDB; Initial Catalog = ExaminationSystemDB; Integrated Security = True; Trust Server Certificate = True")
                     .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                     .LogTo(log => Debug.WriteLine(log), LogLevel.Information)
                     .EnableSensitiveDataLogging(true);
@@ -77,24 +76,47 @@ namespace ExaminationSystem.Data
                       .OnDelete(DeleteBehavior.NoAction);
             });
 
+
+
             modelBuilder.Entity<Instructor>(entity =>
             {
-                entity.Property(entity => entity.Role).HasDefaultValue(GeneralRepository.Instructor);
-
-            });
-            modelBuilder.Entity<User>(entity =>
-            {
+                entity.ToTable("Instructors");
                 entity.HasKey(c => c.ID);
+
                 entity.Property(entity => entity.CreatedDate).HasDefaultValueSql("GETDATE()");
                 entity.Property(entity => entity.UpdatedDate).HasDefaultValueSql("GETDATE()");
                 entity.Property(entity => entity.IsDeleted).HasDefaultValue(false);
+
                 entity.HasIndex(u => u.Email).IsUnique();
                 entity.HasIndex(u => u.Username).IsUnique();
+
+                entity.HasMany(i => i.Courses)
+                      .WithOne(c => c.Instructor)
+                      .HasForeignKey(c => c.InstructorId).OnDelete(DeleteBehavior.NoAction);
+                entity.HasMany(i => i.Questions)
+                      .WithOne(q => q.Instructor)
+                      .HasForeignKey(q => q.InstructorId).OnDelete(DeleteBehavior.NoAction);
+                entity.Property(i => i.Role).HasDefaultValue(Role.Instructor);
             });
-            modelBuilder.Entity<Student>(entity =>
+            modelBuilder.Entity<Student>(entity => 
             {
-                entity.Property(entity => entity.Role).HasDefaultValue(GeneralRepository.Student);
+                entity.ToTable("Students");
+                entity.HasKey(c => c.ID);
+
+                entity.Property(entity => entity.CreatedDate).HasDefaultValueSql("GETDATE()");
+                entity.Property(entity => entity.UpdatedDate).HasDefaultValueSql("GETDATE()");
+                entity.Property(entity => entity.IsDeleted).HasDefaultValue(false);
+
+                entity.HasIndex(u => u.Email).IsUnique();
+                entity.HasIndex(u => u.Username).IsUnique();
+                entity.Property(i => i.Role).HasDefaultValue(Role.Student);
+                entity.HasMany(s => s.StudentCourses)
+                      .WithOne(sc => sc.Student)
+                      .HasForeignKey(sc => sc.StudentId).OnDelete(DeleteBehavior.NoAction);
+                entity.HasMany(s => s.StudentExams).WithOne(a=>a.Student)
+                       .HasForeignKey(se=>se.StudentId).OnDelete(DeleteBehavior.NoAction);
             });
+
             modelBuilder.Entity<ExamQuestion>(entity =>
             {
                 entity.HasKey(eq => new { eq.ExamId, eq.QuestionId });

@@ -98,7 +98,7 @@ namespace ExaminationSystem.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public IEnumerable<StudentCourse> GetStudentsByCourse(int courseId)
+        public IQueryable<StudentCourse> GetStudentsByCourse(int courseId)
         {
             return _context.StudentCourses.AsNoTracking().Where(c=>c.CourseId==courseId);
         }

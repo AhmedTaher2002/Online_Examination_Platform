@@ -3,7 +3,7 @@
     public class UpdateQuestionDTO
     {
         public int QuestionId { get; set; }
-        public string Text { get; set; }
+        public string Text { get; set; }=null!;
         public Models.Enums.QuestionLevel Level { get; set; }
     }
 }

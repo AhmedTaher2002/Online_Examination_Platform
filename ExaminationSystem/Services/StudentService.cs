@@ -24,7 +24,6 @@ namespace ExaminationSystem.Services
         private readonly ChoiceRepository _choiceRepository;
         private readonly CourseRepository _courseRepository;
         private readonly IMapper _mapper;
-
         public StudentService(IMapper mapper)
         {
             _studentRepository = new StudentRepository();
@@ -233,7 +232,7 @@ namespace ExaminationSystem.Services
         }
 
         // Check if exam time has expired
-        private async Task<ResponseViewModel<bool>> CheckExamTime(StudentExam studentExam)
+        private  async Task<ResponseViewModel<bool>> CheckExamTime(StudentExam studentExam)
         {
             var endTime = studentExam.StartedTime.AddMinutes(studentExam.Exam.DurationMinutes);
 
@@ -245,7 +244,7 @@ namespace ExaminationSystem.Services
         }
 
         // Automatically submit exam and calculate score
-        private async Task AutoSubmitExam(StudentExam studentExam)
+        private  async Task AutoSubmitExam(StudentExam studentExam)
         {
             if (studentExam.IsSubmitted) return;
 

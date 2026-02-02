@@ -1,8 +1,11 @@
-﻿namespace ExaminationSystem.ViewModels.Instructor
+﻿using ExaminationSystem.Models.Enums;
+
+namespace ExaminationSystem.ViewModels.Instructor
 {
     public class UpdateInstructorViewModel
     {
-        public string Name { get; set; }
-        public string Email { get; set; }
+        public string Name { get; set; } = null!;
+        public string Username { get; set; } = null!;
+        public string PasswordHash { get; set; } = null!;
     }
 }

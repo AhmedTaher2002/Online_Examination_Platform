@@ -4,10 +4,10 @@ namespace ExaminationSystem.ViewModels.Other
 {
     public class GetExamsForStudentViewModel
     {
-        string studentName { get; set; }
-        public string StudentId { get; set; }
+        public string studentName { get; set; }=null!;
+        public string StudentId { get; set; }= null!;
 
-        public IEnumerable<GetAllExamsDTO> getAllExamsDTO { get; set; }
+        public IEnumerable<GetAllExamsDTO> getAllExamsDTO { get; set; }=new HashSet<GetAllExamsDTO>();
 
     }
 }

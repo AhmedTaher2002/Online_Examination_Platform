@@ -1,6 +1,5 @@
 using ExaminationSystem.Models.Enums;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ExaminationSystem.Models
 {
@@ -24,6 +23,6 @@ namespace ExaminationSystem.Models
         public string PasswordHash { get; set; } = null!;
         
         [Required]
-        public GeneralRepository Role { get; set; }
+        public Role Role { get; set; }
     }
 } 

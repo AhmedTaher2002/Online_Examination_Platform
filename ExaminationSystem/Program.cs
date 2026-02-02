@@ -1,6 +1,4 @@
 using ExaminationSystem.Data;
-using System.Reflection.Metadata;
-using System.Security;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,26 +8,22 @@ namespace ExaminationSystem
     {
         public static void Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+
+        var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            builder.Services.AddAutoMapper(typeof(ExaminationSystem.DTOs.Course.CourseProfile).Assembly);
-            builder.Services.AddAutoMapper(typeof(ExaminationSystem.DTOs.Choice.ChoiceProfile).Assembly);
-            builder.Services.AddAutoMapper(typeof(ExaminationSystem.DTOs.Exam.ExamProfile).Assembly);
-            builder.Services.AddAutoMapper(typeof(ExaminationSystem.DTOs.Instructor.InstructorProfile).Assembly);
-            builder.Services.AddAutoMapper(typeof(ExaminationSystem.DTOs.Question.QuestionProfile).Assembly);
-            builder.Services.AddAutoMapper(typeof(ExaminationSystem.DTOs.Student.StudentProfile).Assembly);
+
+            builder.Services.AddAutoMapper(typeof(ExaminationSystem.Helper.MappingHelper).Assembly);
+            //builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             builder.Services.AddScoped<ExaminationSystem.Filters.GlobalErrorHandlerMiddleware>();
             builder.Services.AddScoped<ExaminationSystem.Filters.TransactionMiddleware>();
 
             var key = Encoding.ASCII.GetBytes(Constants.SecretKey);
-            builder.Services.AddAuthentication(opt=>opt.DefaultAuthenticateScheme =
-                Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)
+            builder.Services.AddAuthentication(opt=>opt.DefaultAuthenticateScheme =Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
                     options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
@@ -73,8 +67,6 @@ namespace ExaminationSystem
             app.UseMiddleware<ExaminationSystem.Filters.TransactionMiddleware>();
             
             app.UseAuthorization();
-
-
             app.MapControllers();
 
             app.Run();

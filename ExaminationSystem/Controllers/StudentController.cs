@@ -18,9 +18,9 @@ namespace ExaminationSystem.Controllers
         private readonly StudentService _studentService;
         private readonly IMapper _mapper;
 
-        public StudentController(StudentService studentService, IMapper mapper)
+        public StudentController(IMapper mapper)
         {
-            _studentService = studentService;
+            _studentService = new StudentService(mapper);
             _mapper = mapper;
         }
 

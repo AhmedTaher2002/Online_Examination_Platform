@@ -14,9 +14,9 @@ namespace ExaminationSystem.Controllers
         private readonly ChoiceService _choiceService;
         private readonly IMapper _mapper;
 
-        public ChoiceController(ChoiceService choiceService, IMapper mapper)
+        public ChoiceController(IMapper mapper)
         {
-            _choiceService = choiceService;
+            _choiceService = new ChoiceService(mapper);
             _mapper = mapper;
         }
 
